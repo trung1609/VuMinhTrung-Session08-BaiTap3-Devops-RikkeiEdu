@@ -1,0 +1,27 @@
+name: Basic Docker Build
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        run: |
+          echo "Đang đăng nhập vào Docker Hub"
+          echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USER }}" --password-stdin
+
+      - name: Build and push Docker image
+        run: |
+          IMAGE_NAME="${{ secrets.DOCKER_HUB_USER }}/user-service"
+          COMMIT_SHA="${{ github.sha }}"
+          
+          docker build -t $IMAGE_NAME:$COMMIT_SHA .
+          docker push $IMAGE_NAME:$COMMIT_SHA
